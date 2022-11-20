@@ -1,0 +1,29 @@
+#postscontainer{
+    display: flex;
+    flex-direction: row;
+}
+
+#posts{
+    width:65%;
+    height: max(100vh,100%);
+    border-left: 1px solid gray;
+    flex-direction: column;
+    display: inline-block;
+}
+#ask{
+    display: inline-block;
+    width: 35%;
+}
+@media only screen and (max-width: 690px) {
+    #postscontainer{
+        flex-direction: column !important;
+    }
+    #posts{
+        width: 100% !important;
+    }
+    #ask{
+        width:100% !important;
+        border-bottom: 2px solid black;
+        padding-bottom: 25px !important;
+    }
+}

@@ -1,0 +1,11 @@
+.post{
+    width:100%;
+    border-bottom: 1px solid grey;
+    margin-bottom:20px;
+    padding: 20px;
+}
+.post .title{
+    font-size: larger;
+    font-weight: bolder;
+    margin-bottom: 5px;
+}
