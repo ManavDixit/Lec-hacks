@@ -10,7 +10,6 @@ const Login=()=>{
   //useEffect to run when component is mounted
   useEffect(() => {
     if(localStorage.getItem('token')){
-        alert('redirecting',token)
       navigate('/');//redirecting to home if authToken is not null/undefined (already logged in)
     }
   }// eslint-disable-next-line
