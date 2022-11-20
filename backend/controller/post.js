@@ -46,6 +46,9 @@ export const answerPost = async (req, res) => {
     if (!user)
       return res.status(400).json({ success: false, error: error.message });
     const { answer, post_id } = req.body;
+    //chgecking if post isd is valid
+    if (!mongoose.isValidObjectId(post_id))
+      return res.status(400).send({ success: false, error: "invalid post id" });
     const post = await Posts.findById(post_id);
     //validating if post exists
     if (!post)
@@ -69,18 +72,27 @@ export const likePost = async (req, res) => {
   try {
     const user = await User.findById(req.id);
     //validating if user is logged in  or not
-    if (!user) return res.status(400).json({ success: false, error: error.message });
+    if (!user)
+      return res.status(400).json({ success: false, error: error.message });
     const { post_id } = req.body;
+    //chgecking if post isd is valid
+    if (!mongoose.isValidObjectId(post_id))
+      return res.status(400).send({ success: false, error: "invalid post id" });
     const post = await Posts.findById(post_id);
     //validating if post exists
-    if (!post) return res.status(400).json({ success: false, error: "post not found" });
+    if (!post)
+      return res.status(400).json({ success: false, error: "post not found" });
     //checking if user has already liked the post
-    const hasAlreadyLiked=post.likes.filter(like=>like.user===user._id.toString());
+    const hasAlreadyLiked = post.likes.filter(
+      (like) => like.user === user._id.toString()
+    );
     //removing like if user has already liked
     if (hasAlreadyLiked.length) {
-      post.likes = post.likes.filter((like) =>like.user!==user._id.toString());
+      post.likes = post.likes.filter(
+        (like) => like.user !== user._id.toString()
+      );
     } else {
-      post.likes.push({ user: user._id.toString()});
+      post.likes.push({ user: user._id.toString() });
     }
     //adding answers(using {new:true} to return updated(new) value)
     const upadtedPost = await Posts.findByIdAndUpdate(
@@ -96,3 +108,77 @@ export const likePost = async (req, res) => {
     res.status(400).json({ success: false, error: error.message });
   }
 };
+
+export const updatePost = async (req, res) => {
+  try {
+    const user = await User.findById(req.id);
+    //validating if user is logged in  or not
+    if (!user)
+      return res.status(400).json({ success: false, error: error.message });
+    const { title, description, post_id } = req.body;
+    //chgecking if post isd is valid
+    if (!mongoose.isValidObjectId(post_id))
+      return res.status(400).send({ success: false, error: "invalid post id" });
+    const post = await Posts.findById(post_id);
+    //validating if post exists
+    if (!post)
+      return res.status(400).json({ success: false, error: "post not found" });
+    //checking if user is autherised to edit the post
+    if (post.user !== user._id.toString())
+      return res
+        .status(400)
+        .send({
+          success: false,
+          error: "you are not autherised to edit this post",
+        });
+
+    //adding answers(using {new:true} to return updated(new) value)
+    const upadtedPost = await Posts.findByIdAndUpdate(
+      post_id,
+      {
+        title,
+        description,
+      },
+      { new: true }
+    );
+    res.send({ success: true, answers: upadtedPost });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ success: false, error: error.message });
+  }
+};
+
+
+export const deletePost = async (req, res) => {
+  try {
+    const user = await User.findById(req.id);
+    //validating if user is logged in  or not
+    if (!user)
+      return res.status(400).json({ success: false, error: error.message });
+    const { post_id } = req.body;
+    //chgecking if post isd is valid
+    if (!mongoose.isValidObjectId(post_id))
+      return res.status(400).send({ success: false, error: "invalid post id" });
+    const post = await Posts.findById(post_id);
+    //validating if post exists
+    if (!post)
+      return res.status(400).json({ success: false, error: "post not found" });
+    //checking if user is autherised to delete the post
+    if (post.user !== user._id.toString())
+      return res
+        .status(400)
+        .send({
+          success: false,
+          error: "you are not autherised to delete this post",
+        });
+
+    //deleting post 
+    await Posts.findByIdAndDelete(post_id);
+
+    res.send({ success: true,message:'post deleted' });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ success: false, error: error.message });
+  }
+};
+
